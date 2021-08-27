@@ -111,7 +111,6 @@ def lbfgs(f, grad, x0, eps=1e-4, max_iter=1000, history=10):
     return x_new, k
 
 # Ucitavamo probleme sa odgovarajucim parametrima
-
 problem_names = ['BOX', 'DIXMAANL', 'EIGENALS', 'FREUROTH', 'TRIDIA', 'VAREIGVL']
 problem_params = [{'N': 10000}, {'M': 500}, {'N': 10}, {'N': 1000}, {'N': 1000}, {'N': 4999, 'M': 6}]
 number_of_problems = len(problem_names)
@@ -127,9 +126,9 @@ for name in problem_names:
     results[name] = []
 
 for name in problem_names:
-    # Posto bibliotecke funkcije za optimizaciju zahtevaju da im se ciljna funkcija,
-    # njen gradijent i hesijan nezavisno proslede, prilagodjavamo API pycutest-a
-    # tim zahtevima.
+    #Posto bibliotecke funkcije za optimizaciju zahtevaju da im se ciljna funkcija,
+    #njen gradijent i hesijan nezavisno proslede, prilagodjavamo API pycutest-a
+    #tim zahtevima.
     def prob_obj(x):
         return problems[name].obj(x, gradient=False)
     
@@ -139,9 +138,9 @@ for name in problem_names:
     def prob_obj_hess(x):
         return problems[name].hess(x)
     
-    # Svaku optimizaciju zapocinjemo od zadate pocetne tacke u okviru tog problema.
-    # Koristimo promenljive start_time i end_time da izmerimo vreme izvrsavanja
-    # svake od metoda optimizacije.
+    #Svaku optimizaciju zapocinjemo od zadate pocetne tacke u okviru tog problema.
+    #Koristimo promenljive start_time i end_time da izmerimo vreme izvrsavanja
+    #svake od metoda optimizacije.
     start_time = time.time()
     result = lbfgs(prob_obj, prob_obj_grad, problems[name].x0, eps=1e-5, max_iter=500, history=100)
     end_time = time.time()
@@ -162,12 +161,17 @@ lbfgs_times = []
 scipy_lbfgs_times = []
 scipy_newton_times = []
 
+lbfgs_iters = []
+scipy_lbfgs_iters = []
+
 for name in problem_names:
     lbfgs_times.append(results[name][0]['time'])
     scipy_lbfgs_times.append(results[name][1]['time'])
     scipy_newton_times.append(results[name][2]['time'])
+    lbfgs_iters.append(results[name][0]['num_iters'])
+    scipy_lbfgs_iters.append(results[name][1]['num_iters'])
 
-x_iters = range(number_of_problems)
+x_iters = np.arange(number_of_problems)
 
 plt.bar(x_iters, lbfgs_times)
 for i, t in enumerate(lbfgs_times):
@@ -176,7 +180,7 @@ plt.xticks(x_iters, problem_names)
 plt.xlabel("Назив проблема")
 plt.ylabel("Време извршавања у секундама")
 plt.title("L-BFGS - време извршавања")
-plt.savefig('figures/lbfgs.png')
+plt.savefig('lbfgs.png')
 
 plt.clf()
 plt.bar(x_iters, scipy_lbfgs_times)
@@ -186,7 +190,7 @@ plt.xticks(x_iters, problem_names)
 plt.xlabel("Назив проблема")
 plt.ylabel("Време извршавања у секундама")
 plt.title("scipy L-BFGS-B - време извршавања")
-plt.savefig('figures/scipy-lbfgs.png')
+plt.savefig('scipy-lbfgs.png')
 
 plt.clf()
 plt.bar(x_iters, scipy_newton_times)
@@ -196,4 +200,32 @@ plt.xticks(x_iters, problem_names)
 plt.xlabel("Назив проблема")
 plt.ylabel("Време извршавања у секундама")
 plt.title("scipy Newton-CG - време извршавања")
-plt.savefig('figures/scipy-newton.png')
+plt.savefig('scipy-newton.png')
+
+plt.clf()
+plt.bar(x_iters - 0.2, lbfgs_times, 0.4, label='L-BFGS')
+plt.bar(x_iters + 0.2, scipy_lbfgs_times, 0.4, label='scipy L-BFGS-B')
+for i, t in enumerate(lbfgs_times):
+    plt.text(x_iters[i] - 0.2, t + 0.1, "{:.2f}".format(t), ha='center')
+for i, t in enumerate(scipy_lbfgs_times):
+    plt.text(x_iters[i] + 0.2, t + 0.1, "{:.2f}".format(t), ha='center')
+plt.xticks(x_iters, problem_names)
+plt.xlabel("Назив проблема")
+plt.ylabel("Време извршавања у секундама")
+plt.title("L-BFGS и scipy L-BFGS-B - време извршавања")
+plt.legend(loc='best')
+plt.savefig('comp-time.png')
+
+plt.clf()
+plt.bar(x_iters - 0.2, lbfgs_iters, 0.4, label='L-BFGS')
+plt.bar(x_iters + 0.2, scipy_lbfgs_iters, 0.4, label='scipy L-BFGS-B')
+for i, t in enumerate(lbfgs_iters):
+    plt.text(x_iters[i] - 0.2, t + 3, str(t), ha='center')
+for i, t in enumerate(scipy_lbfgs_iters):
+    plt.text(x_iters[i] + 0.2, t + 3, str(t), ha='center')
+plt.xticks(x_iters, problem_names)
+plt.xlabel("Назив проблема")
+plt.ylabel("Број итерација")
+plt.title("L-BFGS и scipy L-BFGS-B - број итерација")
+plt.legend(loc='best')
+plt.savefig('comp-iters.png')
