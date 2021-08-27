@@ -126,9 +126,9 @@ for name in problem_names:
     results[name] = []
 
 for name in problem_names:
-    #Posto bibliotecke funkcije za optimizaciju zahtevaju da im se ciljna funkcija,
-    #njen gradijent i hesijan nezavisno proslede, prilagodjavamo API pycutest-a
-    #tim zahtevima.
+    # Posto bibliotecke funkcije za optimizaciju zahtevaju da im se ciljna funkcija,
+    # njen gradijent i hesijan nezavisno proslede, prilagodjavamo API pycutest-a
+    # tim zahtevima.
     def prob_obj(x):
         return problems[name].obj(x, gradient=False)
     
@@ -138,9 +138,9 @@ for name in problem_names:
     def prob_obj_hess(x):
         return problems[name].hess(x)
     
-    #Svaku optimizaciju zapocinjemo od zadate pocetne tacke u okviru tog problema.
-    #Koristimo promenljive start_time i end_time da izmerimo vreme izvrsavanja
-    #svake od metoda optimizacije.
+    # Svaku optimizaciju zapocinjemo od zadate pocetne tacke u okviru tog problema.
+    # Koristimo promenljive start_time i end_time da izmerimo vreme izvrsavanja
+    # svake od metoda optimizacije.
     start_time = time.time()
     result = lbfgs(prob_obj, prob_obj_grad, problems[name].x0, eps=1e-5, max_iter=500, history=100)
     end_time = time.time()
@@ -173,6 +173,8 @@ for name in problem_names:
 
 x_iters = np.arange(number_of_problems)
 
+# Crtamo grafike vremena izvrsavanja
+
 plt.bar(x_iters, lbfgs_times)
 for i, t in enumerate(lbfgs_times):
     plt.text(x_iters[i], t + 0.1, "{:.2f}".format(t), ha='center')
@@ -201,6 +203,8 @@ plt.xlabel("Назив проблема")
 plt.ylabel("Време извршавања у секундама")
 plt.title("scipy Newton-CG - време извршавања")
 plt.savefig('scipy-newton.png')
+
+# Crtamo uporedne grafike
 
 plt.clf()
 plt.bar(x_iters - 0.2, lbfgs_times, 0.4, label='L-BFGS')
